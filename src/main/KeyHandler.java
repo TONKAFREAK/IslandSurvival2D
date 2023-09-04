@@ -3,11 +3,19 @@ package main;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
+import main.GamePanel.STATE;
+
 public class KeyHandler implements KeyListener {
 
 	public boolean upP,downP,rightP,leftP;
 	
+	GamePanel gp;
 	
+	public KeyHandler(GamePanel gp) {
+		
+		this.gp = gp;
+		
+	}
 	
 	@Override
 	public void keyTyped(KeyEvent e) {
@@ -31,6 +39,14 @@ public class KeyHandler implements KeyListener {
 		}
 		if(code == KeyEvent.VK_D) {
 			rightP = true;
+		}
+		if(code == KeyEvent.VK_ESCAPE) {
+			if(gp.gameState == STATE.Game) {
+				gp.gameState = STATE.Pause;
+			}
+			else if(gp.gameState == STATE.Pause) {
+				gp.gameState = STATE.Game;
+			}
 		}
 		
 	}

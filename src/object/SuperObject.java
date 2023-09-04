@@ -5,15 +5,20 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 import main.GamePanel;
+import main.UtilityTool;
 
 public class SuperObject {
+	
+	GamePanel gp;
 	
 	public BufferedImage image;
 	public String name;
 	public boolean collision = false ;
 	public int worldX, worldY;
-	public int solidAreaDefaultX,solidAreaDefaultY;
-	public Rectangle solidArea = new Rectangle(0,0,64,64);
+	public int solidAreaDefaultX = 0,solidAreaDefaultY = 0;
+	public Rectangle solidArea = new Rectangle(0,0,60,62); // collision box 
+	
+	UtilityTool uTool = new UtilityTool();
 	
 	public void draw(Graphics2D g2, GamePanel gp) {
 		

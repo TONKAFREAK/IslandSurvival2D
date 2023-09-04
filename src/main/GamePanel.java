@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
 
+import entity.Entity;
 import entity.Player;
 import object.SuperObject;
 import tile.TileManager;
@@ -22,23 +23,40 @@ public class GamePanel extends JPanel implements Runnable {
 	public final int maxScreenCol = 30;
 	public final int maxScreenRow = 16;
 	public final int screenWidth = tileSize * maxScreenCol;  // 1980 px
-	public final int screenHeight = tileSize * maxScreenRow; // 992 px 
+	public final int screenHeight = tileSize * maxScreenRow - 20; // 972 px 
 	
 	// World settings 
 	
-	public final int maxWorldCol = 30;
+	public final int maxWorldCol = 30;  //change depending on the world map size.
 	public final int maxWorldRow = 16;
-	public final int worldWidth = tileSize * maxWorldCol;
-	public final int worldHeight = tileSize * maxWorldRow;
-	
 	
 	TileManager tm = new TileManager(this);
-	KeyHandler keyH = new KeyHandler();
-	Thread gameThread;
+	
+	KeyHandler keyH = new KeyHandler(this);
+	MouseHandler mouseH = new MouseHandler(this);
+	
 	public CollisionDetection cd = new CollisionDetection(this);
 	public AssetSetter as = new AssetSetter(this);
-	public Player player = new Player(this, keyH);
+	
+	Sound music = new Sound();
+	Sound SE = new Sound();
+	
+	public UI ui = new UI(this);
+	
+	Thread gameThread;
+	
+	public Player player = new Player(this, keyH, mouseH);
 	public SuperObject obj[] = new SuperObject[10];
+	public Entity npc[] = new Entity[10];
+	
+	public enum STATE {
+		
+		Pause,
+		Game
+		
+	}
+	
+	public STATE gameState;
 	
 	public GamePanel() {
 		
@@ -46,14 +64,22 @@ public class GamePanel extends JPanel implements Runnable {
 		this.setBackground(Color.BLACK);
 		this.setDoubleBuffered(true);
 		this.addKeyListener(keyH);
+		this.addMouseListener(mouseH);
+		this.addMouseMotionListener(mouseH);
 		this.setFocusable(true);
 		
 		
 	}
 	
-	public void setupGame() {
+	public void setupGame() { 
 		
-		as.setObject();
+		as.setNPC();
+		
+		playMusic(0); 
+		
+		gameState = STATE.Game;
+		
+		
 	}
 	
 	public void startGameThread() {
@@ -93,7 +119,23 @@ public class GamePanel extends JPanel implements Runnable {
 	
 	public void update() {
 		
-		player.update();
+		if (gameState == STATE.Game) {
+			
+			player.update();
+			
+			for(int i = 0; i < npc.length; i++) {
+				if(npc[i] != null) {
+					npc[i].update();
+				}
+			}
+			
+		}
+		if (gameState == STATE.Pause) {
+			
+			
+			
+		}
+		
 	}
 	
 	@Override
@@ -103,17 +145,60 @@ public class GamePanel extends JPanel implements Runnable {
 		
 		Graphics2D g2 = (Graphics2D)g;
 		
+		long drawStart = 0;
+		drawStart = System.nanoTime();
+		
 		tm.draw(g2);
+		
+		// objects
 		
 		for(int i = 0; i < obj.length; i++) {
 			if(obj[i] != null) {
 				obj[i].draw(g2, this);
 			}
 		}
+		// NPC 
+		
+		for(int i = 0; i < npc.length; i++) {
+			if(npc[i] != null) {
+				npc[i].draw(g2);
+			}
+			
+		}
 		
 		player.draw(g2);
 		
+		ui.draw(g2);;
+		
+//		long drawEnd = System.nanoTime();
+//		long passed = drawEnd - drawStart;   DEBUG
+//		System.out.println(passed);
+		
+//		int h = mouseH.mouseX;
+//		System.out.println(h);  DEBUG
+		
 		g2.dispose();
+	}
+	
+	public void playMusic(int i) {
+		
+		music.setFile(i);
+		music.play();
+		music.loop();
+		
+	}
+	
+	public void stopMusic() {
+		
+		music.stop();
+		
+	}
+	
+	public void playSE(int i) {
+		
+		SE.setFile(i);
+		SE.play();
+		
 	}
 	
 }
